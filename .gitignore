@@ -7,6 +7,9 @@ wheels/
 *.egg-info
 
 # Virtual environments
+.mlflow.db
+mlruns/
+__pycache__/
 .venv/
 
 # MLflow
