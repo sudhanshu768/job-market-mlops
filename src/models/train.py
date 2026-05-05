@@ -12,7 +12,7 @@ FEATURES_PATH = os.path.join(BASE_DIR, "artifacts/features.pkl")
 
 
 def run_training():
-    print("🚀 Training started...")
+    print(" Training started...")
 
     df = pd.read_csv(DATA_PATH)
 
@@ -37,7 +37,7 @@ def run_training():
     with mlflow.start_run():
         mlflow.log_param("model", "LinearRegression")
 
-    print("✅ Training complete!")
+    print(" Training complete!")
 
 
 if __name__ == "__main__":

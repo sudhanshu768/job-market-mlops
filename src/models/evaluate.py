@@ -11,7 +11,7 @@ MODEL_PATH = os.path.join(BASE_DIR, "artifacts/model.pkl")
 
 
 def run_evaluation():
-    print("📊 Evaluating model...")
+    print(" Evaluating model...")
 
     df = pd.read_csv(DATA_PATH)
 
@@ -28,7 +28,7 @@ def run_evaluation():
     print(f"MSE: {mse}")
     print(f"RMSE: {rmse}")
 
-    print("✅ Evaluation complete!")
+    print(" Evaluation complete!")
 
 
 if __name__ == "__main__":

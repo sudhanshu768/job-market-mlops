@@ -3,7 +3,7 @@ import requests
 
 st.set_page_config(page_title="Job Market Prediction", layout="centered")
 
-st.title("📊 Job Market Prediction App")
+st.title(" Job Market Prediction App")
 st.write("Enter the details below to predict unemployment rate")
 
 # Inputs
@@ -18,7 +18,7 @@ Year = st.number_input("Year", min_value=2000, max_value=2030, value=2020)
 Month = st.number_input("Month", min_value=1, max_value=12, value=7)
 
 # Button
-if st.button("Predict 🚀"):
+if st.button("Predict "):
 
     payload = {
         "Region": int(Region),
@@ -42,10 +42,10 @@ if st.button("Predict 🚀"):
             result = response.json()
             prediction = result["prediction"]
 
-            st.success(f"📈 Predicted Unemployment Rate: {prediction:.2f}%")
+            st.success(f" Predicted Unemployment Rate: {prediction:.2f}%")
 
         else:
             st.error(f"API Error: {response.text}")
 
     except Exception as e:
-        st.error("🚨 Could not connect to FastAPI. Make sure Docker API is running.")
+        st.error(" Could not connect to FastAPI. Make sure Docker API is running.")

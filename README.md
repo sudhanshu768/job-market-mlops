@@ -1,13 +1,13 @@
-📄 📌 FINAL README (COPY–PASTE READY)
-# 🚀 Job Market Prediction MLOps Pipeline
+📄  FINAL README (COPY–PASTE READY)
+#  Job Market Prediction MLOps Pipeline
 
-## 📌 Overview
+##  Overview
 This project implements an end-to-end **MLOps pipeline** to predict unemployment trends using machine learning.  
 It integrates data processing, model training, tracking, deployment, CI/CD, and monitoring into a unified system.
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 
 Raw Data → Preprocessing → Model Training → Evaluation → MLflow Tracking
@@ -16,7 +16,7 @@ Raw Data → Preprocessing → Model Training → Evaluation → MLflow Tracking
 
 ---
 
-## ⚙️ Tech Stack
+##  Tech Stack
 
 - **Python 3.11**
 - **Airflow** – Workflow orchestration  
@@ -29,7 +29,7 @@ Raw Data → Preprocessing → Model Training → Evaluation → MLflow Tracking
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 
 job-market-mlops/
@@ -64,7 +64,7 @@ job-market-mlops/
 
 ---
 
-## 🔄 Pipeline Workflow (Airflow DAG)
+##  Pipeline Workflow (Airflow DAG)
 
 1. **Ingest Data**  
 2. **Preprocess Data**  
@@ -75,7 +75,7 @@ Airflow automates execution and scheduling of the pipeline.
 
 ---
 
-## 📊 Model Training
+##  Model Training
 
 - Algorithm: **Linear Regression**
 - Features:
@@ -89,7 +89,7 @@ Airflow automates execution and scheduling of the pipeline.
 
 ---
 
-## 📈 Experiment Tracking (MLflow)
+##  Experiment Tracking (MLflow)
 
 - Logs:
   - MSE
@@ -101,7 +101,7 @@ job-market-model → Production
 
 ---
 
-## 🚀 FastAPI Deployment
+##  FastAPI Deployment
 
 ### Run API:
 ```bash
@@ -124,29 +124,29 @@ Output:
 {
   "prediction": 5.65
 }
-🔁 CI/CD Pipeline (GitHub Actions)
+ CI/CD Pipeline (GitHub Actions)
 Trigger: Push to main branch
 Steps:
 Install dependencies
 Run preprocessing
 Train model
 Evaluate model
-📊 Monitoring (Evidently AI)
+ Monitoring (Evidently AI)
 Generates Data Drift Report
 Output:
 reports/data_drift_report.html
 Insight:
 No drift detected (same dataset used for demo)
 In real systems, drift would indicate model degradation
-🧪 Evaluation Metrics
+ Evaluation Metrics
 MSE ≈ 0
 RMSE ≈ 0
 
-⚠️ Note:
+ Note:
 Evaluation uses same dataset → near-perfect score
 In production, separate test data should be used.
 
-▶️ How to Run Project
+ How to Run Project
 1. Setup Environment
 python -m venv .venv
 source .venv/bin/activate
@@ -164,7 +164,7 @@ Click Trigger
 uvicorn app.main:app --reload
 5. Run Evaluation (Monitoring)
 python src/models/evaluate.py
-📌 Key Features
+ Key Features
 
 ✔ End-to-End Pipeline
 ✔ Automated Workflow (Airflow)
@@ -173,7 +173,7 @@ python src/models/evaluate.py
 ✔ CI/CD Integration
 ✔ Data Drift Monitoring
 
-🎯 Conclusion
+ Conclusion
 
 This project demonstrates a complete production-ready MLOps workflow, integrating automation, monitoring, and deployment for scalable machine learning systems.
 

@@ -1,2 +1,2 @@
 def run_ingestion():
-    print("📥 Data ingestion step (already using local CSVs)")
+    print("Data ingestion step (already using local CSVs)")

@@ -10,11 +10,23 @@ OUTPUT_PATH = os.path.join(BASE_DIR, "data/processed/clean_data.csv")
 
 
 def load_data():
+    if not os.path.exists(RAW_PATH_1) or not os.path.exists(RAW_PATH_2):
+        print(" Dataset not found. Creating dummy data for CI/CD...")
+
+        data = {
+            "Region": ["A", "B", "C"],
+            "Date": ["2020-01-01", "2020-02-01", "2020-03-01"],
+            "Estimated Unemployment Rate (%)": [5.0, 6.0, 7.0],
+            "Estimated Employed": [1000000, 1200000, 1100000],
+            "Estimated Labour Participation Rate (%)": [40.0, 42.0, 41.0],
+            "Area": ["Urban", "Rural", "Urban"]
+        }
+
+        df = pd.DataFrame(data)
+        return df, df
+
     df1 = pd.read_csv(RAW_PATH_1)
     df2 = pd.read_csv(RAW_PATH_2)
-
-    df1.columns = df1.columns.str.strip()
-    df2.columns = df2.columns.str.strip()
 
     return df1, df2
 
@@ -82,11 +94,11 @@ def encode_features(df):
 def save_data(df):
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     df.to_csv(OUTPUT_PATH, index=False)
-    print(f"✅ Saved: {OUTPUT_PATH}")
+    print(f" Saved: {OUTPUT_PATH}")
 
 
 def run_preprocessing():
-    print("🔄 Preprocessing started...")
+    print(" Preprocessing started...")
 
     df1, df2 = load_data()
     df = combine_data(df1, df2)
@@ -97,7 +109,7 @@ def run_preprocessing():
 
     save_data(df)
 
-    print("✅ Preprocessing done!")
+    print(" Preprocessing done!")
 
 
 if __name__ == "__main__":
