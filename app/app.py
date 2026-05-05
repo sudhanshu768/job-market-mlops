@@ -1,19 +1,25 @@
 import streamlit as st
 import requests
 
-st.title("📊 Job Market Prediction")
+st.set_page_config(page_title="Job Market Prediction", layout="centered")
 
-Region = st.number_input("Region", 0, 50)
-employed = st.number_input("Employed", 0.0)
-labour_rate = st.number_input("Labour Rate", 0.0)
-Area = st.selectbox("Area", [0, 1])
-lag_1 = st.number_input("Lag 1")
-lag_2 = st.number_input("Lag 2")
-rolling_avg = st.number_input("Rolling Avg")
-Year = st.number_input("Year", 2000, 2030)
-Month = st.number_input("Month", 1, 12)
+st.title("📊 Job Market Prediction App")
+st.write("Enter the details below to predict unemployment rate")
 
-if st.button("Predict"):
+# Inputs
+Region = st.number_input("Region", min_value=0, max_value=50, value=5)
+employed = st.number_input("Employed", value=1500000.0)
+labour_rate = st.number_input("Labour Rate (%)", value=42.5)
+Area = st.selectbox("Area (0 = Rural, 1 = Urban)", [0, 1])
+lag_1 = st.number_input("Lag 1", value=6.2)
+lag_2 = st.number_input("Lag 2", value=6.0)
+rolling_avg = st.number_input("Rolling Average", value=6.1)
+Year = st.number_input("Year", min_value=2000, max_value=2030, value=2020)
+Month = st.number_input("Month", min_value=1, max_value=12, value=7)
+
+# Button
+if st.button("Predict 🚀"):
+
     payload = {
         "Region": int(Region),
         "employed": float(employed),
@@ -32,10 +38,14 @@ if st.button("Predict"):
             json=payload
         )
 
-        result = response.json()
-        prediction = result["prediction"]
+        if response.status_code == 200:
+            result = response.json()
+            prediction = result["prediction"]
 
-        st.success(f"📈 Predicted Unemployment Rate: {prediction:.2f}%")
+            st.success(f"📈 Predicted Unemployment Rate: {prediction:.2f}%")
+
+        else:
+            st.error(f"API Error: {response.text}")
 
     except Exception as e:
-        st.error(f"Error: {e}")
+        st.error("🚨 Could not connect to FastAPI. Make sure Docker API is running.")
