@@ -1,0 +1,15 @@
+[project]
+name = "job-market-mlops"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "dask>=2026.3.0",
+    "evidently>=0.7.21",
+    "matplotlib>=3.10.9",
+    "mlflow>=3.11.1",
+    "pandas>=2.3.3",
+    "scikit-learn>=1.8.0",
+    "streamlit>=1.57.0",
+]
