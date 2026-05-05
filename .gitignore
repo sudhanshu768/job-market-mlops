@@ -1,0 +1,29 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv/
+
+# MLflow
+mlruns/
+
+# DVC cache
+.dvc/cache/
+
+# Data files (optional - if large)
+data/raw/*.csv
+data/processed/*.csv
+
+# OS files
+.DS_Store
+
+# Logs
+*.log
+
+# Streamlit
+.streamlit/
