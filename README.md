@@ -177,6 +177,8 @@ python src/models/evaluate.py
 
 This project demonstrates a complete production-ready MLOps workflow, integrating automation, monitoring, and deployment for scalable machine learning systems.
 
+testing ci/cd
+
 👤 Author
 
 Sudhanshu Kandekar
