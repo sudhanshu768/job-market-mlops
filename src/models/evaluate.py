@@ -1,66 +1,34 @@
 import pandas as pd
-import joblib
-import mlflow
-from sklearn.metrics import mean_squared_error
 import os
+import joblib
+from sklearn.metrics import mean_squared_error
+import numpy as np
 
-#  Latest Evidently imports
-from evidently import Report
-from evidently.presets import DataDriftPreset
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
+
+DATA_PATH = os.path.join(BASE_DIR, "data/processed/clean_data.csv")
+MODEL_PATH = os.path.join(BASE_DIR, "artifacts/model.pkl")
 
 
 def run_evaluation():
-    print(" Evaluating model...")
+    print("📊 Evaluating model...")
 
-    #  Load processed data
-    df = pd.read_csv("data/processed/clean_data.csv")
+    df = pd.read_csv(DATA_PATH)
 
-    #  Load trained model
-    model = joblib.load("artifacts/model.pkl")
-
-    #  Prepare features (match training)
-    X = df.drop(columns=["unemployment", "Date"], errors="ignore")
+    X = df.drop(columns=["unemployment", "Date"], errors='ignore')
     y = df["unemployment"]
 
-    #  Predictions
-    preds = model.predict(X)
+    model = joblib.load(MODEL_PATH)
 
-    #  Metrics
-    mse = mean_squared_error(y, preds)
-    rmse = mse ** 0.5
+    predictions = model.predict(X)
 
-    print(f" MSE: {mse}")
-    print(f" RMSE: {rmse}")
+    mse = mean_squared_error(y, predictions)
+    rmse = np.sqrt(mse)
 
-    #  Log to MLflow
-    mlflow.log_metric("mse", mse)
-    mlflow.log_metric("rmse", rmse)
+    print(f"MSE: {mse}")
+    print(f"RMSE: {rmse}")
 
-    # =========================================================
-    #  Evidently Data Drift Report (LATEST API)
-    # =========================================================
-
-    report = Report(metrics=[DataDriftPreset()])
-
-    # Split dataset (for demo drift)
-    reference = df.sample(frac=0.5, random_state=42)
-    current = df.sample(frac=0.5, random_state=1)
-
-    #  IMPORTANT: run() returns new object
-    drift_report = report.run(
-        reference_data=reference,
-        current_data=current
-    )
-
-    #  Save report
-    os.makedirs("reports", exist_ok=True)
-
-    report_path = os.path.abspath("reports/data_drift_report.html")
-
-    #  Correct method (latest API)
-    drift_report.save_html(report_path)
-
-    print(f" Drift report saved at: {report_path}")
+    print("✅ Evaluation complete!")
 
 
 if __name__ == "__main__":

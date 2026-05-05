@@ -1,47 +1,44 @@
 import pandas as pd
-import joblib
 import os
-import mlflow
-import mlflow.sklearn
-
-from sklearn.model_selection import train_test_split
+import joblib
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
+import mlflow
+
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
+DATA_PATH = os.path.join(BASE_DIR, "data/processed/clean_data.csv")
+MODEL_PATH = os.path.join(BASE_DIR, "artifacts/model.pkl")
+FEATURES_PATH = os.path.join(BASE_DIR, "artifacts/features.pkl")
 
 
 def run_training():
-    print(" Training started...")
+    print("🚀 Training started...")
 
-    df = pd.read_csv("data/processed/clean_data.csv")
+    df = pd.read_csv(DATA_PATH)
 
-    X = df.drop(columns=["unemployment"])
+    X = df.drop(columns=["unemployment", "Date"], errors='ignore')
     y = df["unemployment"]
 
-    #  Save feature list (IMPORTANT)
-    feature_names = X.columns.tolist()
-    os.makedirs("artifacts", exist_ok=True)
-    joblib.dump(feature_names, "artifacts/features.pkl")
+    # Save feature order
+    os.makedirs(os.path.dirname(FEATURES_PATH), exist_ok=True)
+    joblib.dump(X.columns.tolist(), FEATURES_PATH)
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+
+    # Save model
+    joblib.dump(model, MODEL_PATH)
+
+    # MLflow logging
     mlflow.set_experiment("job_market_experiment")
 
     with mlflow.start_run():
+        mlflow.log_param("model", "LinearRegression")
 
-        model = LinearRegression()
-        model.fit(X_train, y_train)
+    print("✅ Training complete!")
 
-        y_pred = model.predict(X_test)
 
-        mse = mean_squared_error(y_test, y_pred)
-
-        # MLflow logs
-        mlflow.log_metric("mse", mse)
-        mlflow.sklearn.log_model(model, "model")
-
-        # Save model locally
-        joblib.dump(model, "artifacts/model.pkl")
-
-        print(f" Training complete | MSE: {mse}")
+if __name__ == "__main__":
+    run_training()

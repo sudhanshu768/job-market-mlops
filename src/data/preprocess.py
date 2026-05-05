@@ -1,13 +1,17 @@
 import pandas as pd
 import os
 
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
+
+RAW_PATH_1 = os.path.join(BASE_DIR, "data/raw/Unemployment in India.csv")
+RAW_PATH_2 = os.path.join(BASE_DIR, "data/raw/Unemployment_Rate_upto_11_2020.csv")
+
+OUTPUT_PATH = os.path.join(BASE_DIR, "data/processed/clean_data.csv")
+
 
 def load_data():
-    file1 = "data/raw/Unemployment in India.csv"
-    file2 = "data/raw/Unemployment_Rate_upto_11_2020.csv"
-
-    df1 = pd.read_csv(file1)
-    df2 = pd.read_csv(file2)
+    df1 = pd.read_csv(RAW_PATH_1)
+    df2 = pd.read_csv(RAW_PATH_2)
 
     df1.columns = df1.columns.str.strip()
     df2.columns = df2.columns.str.strip()
@@ -17,30 +21,22 @@ def load_data():
 
 def combine_data(df1, df2):
     df = pd.concat([df1, df2], ignore_index=True)
-    df = df.drop_duplicates()
-    return df
+    return df.drop_duplicates()
 
 
 def clean_data(df):
-    df['Date'] = pd.to_datetime(df['Date'], format='mixed', errors='coerce')
+    df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
 
     numeric_cols = [
         'Estimated Unemployment Rate (%)',
         'Estimated Employed',
-        'Estimated Labour Participation Rate (%)',
-        'longitude',
-        'latitude'
+        'Estimated Labour Participation Rate (%)'
     ]
 
     for col in numeric_cols:
-        df[col] = df[col].astype(str).str.strip()
         df[col] = pd.to_numeric(df[col], errors='coerce')
 
-    df = df.dropna(subset=[
-        'Date',
-        'Estimated Unemployment Rate (%)'
-    ])
-
+    df = df.dropna(subset=['Date', 'Estimated Unemployment Rate (%)'])
     return df
 
 
@@ -62,18 +58,11 @@ def feature_engineering(df):
     df['Year'] = df['Date'].dt.year
     df['Month'] = df['Date'].dt.month
 
-    df = df.dropna(subset=['lag_1', 'lag_2', 'rolling_avg'])
-
+    df = df.dropna()
     return df
 
 
 def clean_columns(df):
-    df = df.drop(columns=['Region.1', 'Frequency'], errors='ignore')
-    df = df.drop(columns=['longitude', 'latitude'], errors='ignore')
-
-    #  CRITICAL FIX
-    df = df.drop(columns=['Date'], errors='ignore')
-
     df = df.rename(columns={
         'Estimated Unemployment Rate (%)': 'unemployment',
         'Estimated Employed': 'employed',
@@ -87,31 +76,17 @@ def encode_features(df):
     df['Region'] = df['Region'].astype('category').cat.codes
     df['Area'] = df['Area'].fillna(0).astype(int)
 
-    numeric_cols = [
-        'unemployment',
-        'employed',
-        'labour_rate',
-        'lag_1',
-        'lag_2',
-        'rolling_avg',
-        'Year',
-        'Month'
-    ]
-
-    for col in numeric_cols:
-        df[col] = pd.to_numeric(df[col], errors='coerce')
-
     return df
 
 
 def save_data(df):
-    os.makedirs("data/processed", exist_ok=True)
-    df.to_csv("data/processed/clean_data.csv", index=False)
-    print(" Processed data saved")
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+    df.to_csv(OUTPUT_PATH, index=False)
+    print(f"✅ Saved: {OUTPUT_PATH}")
 
 
 def run_preprocessing():
-    print(" Preprocessing started...")
+    print("🔄 Preprocessing started...")
 
     df1, df2 = load_data()
     df = combine_data(df1, df2)
@@ -122,4 +97,8 @@ def run_preprocessing():
 
     save_data(df)
 
-    print(" Preprocessing complete")
+    print("✅ Preprocessing done!")
+
+
+if __name__ == "__main__":
+    run_preprocessing()
