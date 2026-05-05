@@ -1,63 +1,47 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_absolute_error, r2_score
+import joblib
+import os
 import mlflow
 import mlflow.sklearn
 
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
 
-def load_data():
-    return pd.read_csv("data/processed/clean_data.csv")
 
+def run_training():
+    print(" Training started...")
 
-def train_model(df):
-    # Features & Target
-    X = df.drop(columns=['unemployment', 'Date'], errors='ignore')
-    y = df['unemployment']
+    df = pd.read_csv("data/processed/clean_data.csv")
 
-    # Train-test split
+    X = df.drop(columns=["unemployment"])
+    y = df["unemployment"]
+
+    #  Save feature list (IMPORTANT)
+    feature_names = X.columns.tolist()
+    os.makedirs("artifacts", exist_ok=True)
+    joblib.dump(feature_names, "artifacts/features.pkl")
+
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
 
-    # Model
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
-    model.fit(X_train, y_train)
-
-    # Predictions
-    preds = model.predict(X_test)
-
-    # Metrics
-    mae = mean_absolute_error(y_test, preds)
-    r2 = r2_score(y_test, preds)
-
-    return model, mae, r2
-
-
-def main():
-    # Set experiment
-    mlflow.set_experiment("job-market-prediction")
-
-    df = load_data()
+    mlflow.set_experiment("job_market_experiment")
 
     with mlflow.start_run():
-        model, mae, r2 = train_model(df)
 
-        # Log metrics
-        mlflow.log_metric("MAE", mae)
-        mlflow.log_metric("R2", r2)
+        model = LinearRegression()
+        model.fit(X_train, y_train)
 
-        #  Log & Register Model
-        mlflow.sklearn.log_model(
-            model,
-            name="model",  # new API (replaces artifact_path)
-            registered_model_name="job-market-model"
-        )
+        y_pred = model.predict(X_test)
 
-        print(f" MAE: {mae}")
-        print(f" R2 Score: {r2}")
-        print(" Model registered as 'job-market-model'")
+        mse = mean_squared_error(y_test, y_pred)
 
+        # MLflow logs
+        mlflow.log_metric("mse", mse)
+        mlflow.sklearn.log_model(model, "model")
 
-if __name__ == "__main__":
-    main()
+        # Save model locally
+        joblib.dump(model, "artifacts/model.pkl")
+
+        print(f" Training complete | MSE: {mse}")

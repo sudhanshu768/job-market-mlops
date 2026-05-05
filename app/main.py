@@ -1,12 +1,17 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import mlflow.pyfunc
-import numpy as np
+import pandas as pd
+import joblib
 
 app = FastAPI(title="Job Market Prediction API")
 
-# Load the Production model from MLflow Registry
+# Load MLflow model
 model = mlflow.pyfunc.load_model("models:/job-market-model/Production")
+
+#  Load feature order (CRITICAL)
+features = joblib.load("artifacts/features.pkl")
+
 
 class InputData(BaseModel):
     Region: int
@@ -19,28 +24,24 @@ class InputData(BaseModel):
     Year: int
     Month: int
 
+
 @app.get("/")
 def home():
     return {"status": "API is running"}
 
+
 @app.post("/predict")
 def predict(data: InputData):
-    print("📥 Received input:", data)
+    print(" Received input:", data)
 
-    input_array = np.array([[ 
-        data.Region,
-        data.employed,
-        data.labour_rate,
-        data.Area,
-        data.lag_1,
-        data.lag_2,
-        data.rolling_avg,
-        data.Year,
-        data.Month
-    ]])
+    # Convert to DataFrame
+    df = pd.DataFrame([data.dict()])
 
-    prediction = model.predict(input_array)
+    #  Ensure correct feature order
+    df = df[features]
 
-    print("📤 Prediction:", prediction)
+    prediction = model.predict(df)
+
+    print(" Prediction:", prediction)
 
     return {"prediction": float(prediction[0])}

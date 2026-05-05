@@ -22,9 +22,8 @@ def combine_data(df1, df2):
 
 
 def clean_data(df):
-    # Fix Date format
     df['Date'] = pd.to_datetime(df['Date'], format='mixed', errors='coerce')
-    # Clean numeric columns
+
     numeric_cols = [
         'Estimated Unemployment Rate (%)',
         'Estimated Employed',
@@ -37,7 +36,6 @@ def clean_data(df):
         df[col] = df[col].astype(str).str.strip()
         df[col] = pd.to_numeric(df[col], errors='coerce')
 
-    # Drop essential missing values
     df = df.dropna(subset=[
         'Date',
         'Estimated Unemployment Rate (%)'
@@ -47,17 +45,13 @@ def clean_data(df):
 
 
 def feature_engineering(df):
-    # Sort correctly
     df = df.sort_values(by=['Region', 'Date'])
 
-    # Encode Area
     df['Area'] = df['Area'].map({'Urban': 1, 'Rural': 0})
 
-    # Lag features per Region
     df['lag_1'] = df.groupby('Region')['Estimated Unemployment Rate (%)'].shift(1)
     df['lag_2'] = df.groupby('Region')['Estimated Unemployment Rate (%)'].shift(2)
 
-    # Rolling average per Region
     df['rolling_avg'] = (
         df.groupby('Region')['Estimated Unemployment Rate (%)']
         .rolling(3)
@@ -65,24 +59,21 @@ def feature_engineering(df):
         .reset_index(level=0, drop=True)
     )
 
-    # Time features
     df['Year'] = df['Date'].dt.year
     df['Month'] = df['Date'].dt.month
 
-    # Drop only rows affected by lag/rolling
     df = df.dropna(subset=['lag_1', 'lag_2', 'rolling_avg'])
 
     return df
 
 
 def clean_columns(df):
-    # Drop unnecessary columns
     df = df.drop(columns=['Region.1', 'Frequency'], errors='ignore')
-
-    # 🔥 Drop geographic columns (FINAL FIX)
     df = df.drop(columns=['longitude', 'latitude'], errors='ignore')
 
-    # Rename columns
+    #  CRITICAL FIX
+    df = df.drop(columns=['Date'], errors='ignore')
+
     df = df.rename(columns={
         'Estimated Unemployment Rate (%)': 'unemployment',
         'Estimated Employed': 'employed',
@@ -93,13 +84,9 @@ def clean_columns(df):
 
 
 def encode_features(df):
-    # Encode Region
     df['Region'] = df['Region'].astype('category').cat.codes
-
-    # Ensure Area numeric
     df['Area'] = df['Area'].fillna(0).astype(int)
 
-    # Force numeric conversion
     numeric_cols = [
         'unemployment',
         'employed',
@@ -118,16 +105,13 @@ def encode_features(df):
 
 
 def save_data(df):
-    output_path = "data/processed/clean_data.csv"
-
     os.makedirs("data/processed", exist_ok=True)
-    df.to_csv(output_path, index=False)
+    df.to_csv("data/processed/clean_data.csv", index=False)
+    print(" Processed data saved")
 
-    print(f"✅ Processed data saved at {output_path}")
 
-
-def main():
-    print("🔄 Starting preprocessing...")
+def run_preprocessing():
+    print(" Preprocessing started...")
 
     df1, df2 = load_data()
     df = combine_data(df1, df2)
@@ -138,8 +122,4 @@ def main():
 
     save_data(df)
 
-    print("✅ Preprocessing complete!")
-
-
-if __name__ == "__main__":
-    main()
+    print(" Preprocessing complete")
