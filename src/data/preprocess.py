@@ -36,55 +36,6 @@ MAPPING_PATH = os.path.join(
 
 def load_data():
 
-    # CI/CD fallback
-    if not os.path.exists(RAW_PATH_1) or not os.path.exists(RAW_PATH_2):
-
-        print("⚠️ Dataset not found. Creating dummy data for CI/CD...")
-
-        data = {
-            "Region": ["A", "A", "A", "B", "B", "B"],
-            "Date": [
-                "2020-01-01",
-                "2020-02-01",
-                "2020-03-01",
-                "2020-01-01",
-                "2020-02-01",
-                "2020-03-01"
-            ],
-            "Estimated Unemployment Rate (%)": [
-                5.0, 6.0, 7.0,
-                4.5, 5.5, 6.5
-            ],
-            "Estimated Employed": [
-                1000000,
-                1100000,
-                1200000,
-                900000,
-                950000,
-                1000000
-            ],
-            "Estimated Labour Participation Rate (%)": [
-                40.0,
-                42.0,
-                41.0,
-                39.0,
-                40.0,
-                41.0
-            ],
-            "Area": [
-                "Urban",
-                "Urban",
-                "Urban",
-                "Rural",
-                "Rural",
-                "Rural"
-            ]
-        }
-
-        df = pd.DataFrame(data)
-
-        return df, df
-
     # Load actual datasets
     df1 = pd.read_csv(RAW_PATH_1)
     df2 = pd.read_csv(RAW_PATH_2)
