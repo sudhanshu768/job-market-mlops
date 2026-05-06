@@ -1,114 +1,162 @@
-📄  FINAL README (COPY–PASTE READY)
 #  Job Market Prediction MLOps Pipeline
 
+---
+
 ##  Overview
-This project implements an end-to-end **MLOps pipeline** to predict unemployment trends using machine learning.  
-It integrates data processing, model training, tracking, deployment, CI/CD, and monitoring into a unified system.
+
+This project implements an **end-to-end MLOps pipeline** to predict unemployment trends using machine learning.
+
+It integrates:
+
+* Data processing
+* Model training
+* Experiment tracking
+* Workflow orchestration
+* API deployment
+* CI/CD automation
+* Monitoring
+
+into a **single unified system**.
 
 ---
 
 ##  Architecture
 
-
-Raw Data → Preprocessing → Model Training → Evaluation → MLflow Tracking
-→ Airflow Orchestration → FastAPI Deployment → CI/CD → Monitoring (Evidently)
-
+```
+Raw Data 
+   ↓
+Preprocessing
+   ↓
+Model Training
+   ↓
+Evaluation
+   ↓
+MLflow Tracking
+   ↓
+Airflow Orchestration
+   ↓
+FastAPI (Docker)
+   ↓
+Streamlit UI
+   ↓
+Monitoring (Evidently)
+```
 
 ---
 
-##  Tech Stack
+## ⚙️ Tech Stack
 
-- **Python 3.11**
-- **Airflow** – Workflow orchestration  
-- **MLflow** – Experiment tracking & model registry  
-- **FastAPI** – Model deployment API  
-- **Scikit-learn** – Machine learning  
-- **Pandas / NumPy** – Data processing  
-- **GitHub Actions** – CI/CD automation  
-- **Evidently AI** – Data drift monitoring  
+* **Python 3.11**
+* **Airflow** – Workflow orchestration
+* **MLflow** – Experiment tracking
+* **FastAPI** – Model deployment
+* **Docker** – Containerization
+* **Streamlit** – User interface
+* **Scikit-learn** – Machine learning
+* **Pandas / NumPy** – Data processing
+* **GitHub Actions** – CI/CD
+* **Evidently AI** – Data drift monitoring
 
 ---
 
-##  Project Structure
+## 📁 Project Structure
 
-
+```
 job-market-mlops/
 │
 ├── dags/
-│ └── job_market_pipeline.py
+│   └── job_market_pipeline.py
 │
 ├── src/
-│ ├── data/
-│ │ ├── ingestion.py
-│ │ └── preprocess.py
-│ ├── models/
-│ │ ├── train.py
-│ │ └── evaluate.py
+│   ├── data/
+│   │   ├── ingestion.py
+│   │   └── preprocess.py
+│   │
+│   ├── models/
+│   │   ├── train.py
+│   │   └── evaluate.py
 │
 ├── data/
-│ ├── raw/
-│ └── processed/
+│   ├── raw/
+│   └── processed/
 │
 ├── artifacts/
-│ └── model.pkl
+│   ├── model.pkl
+│   └── features.pkl
 │
 ├── reports/
-│ └── data_drift_report.html
+│   └── data_drift_report.html
 │
 ├── app/
-│ └── main.py
+│   ├── main.py        # FastAPI
+│   └── app.py         # Streamlit UI
+│
+├── .github/workflows/
+│   └── mlops_pipeline.yml
 │
 ├── requirements.txt
 └── README.md
-
+```
 
 ---
 
 ##  Pipeline Workflow (Airflow DAG)
 
-1. **Ingest Data**  
-2. **Preprocess Data**  
-3. **Train Model**  
-4. **Evaluate Model**
+Airflow orchestrates the following steps:
 
-Airflow automates execution and scheduling of the pipeline.
+1. **Ingest Data**
+2. **Preprocess Data**
+3. **Train Model**
+4. **Evaluate Model**
 
 ---
 
 ##  Model Training
 
-- Algorithm: **Linear Regression**
-- Features:
-  - Region
-  - employed
-  - labour_rate
-  - Area
-  - lag features
-  - rolling average
-  - Year, Month
+* **Algorithm:** Linear Regression
+
+### Features:
+
+* Region
+* employed
+* labour_rate
+* Area
+* lag_1, lag_2
+* rolling_avg
+* Year, Month
 
 ---
 
 ##  Experiment Tracking (MLflow)
 
-- Logs:
-  - MSE
-  - RMSE
-- Model registered in:
+MLflow is used to track:
 
-job-market-model → Production
-
+* Parameters
+* Metrics (MSE, RMSE)
+* Model versions
 
 ---
 
-##  FastAPI Deployment
+##  Deployment
 
-### Run API:
+### 🔹 FastAPI (Dockerized)
+
+Run API using Docker:
+
 ```bash
-uvicorn app.main:app --reload
-Endpoint:
+docker build -t job-market-api .
+docker run -p 8000:8000 job-market-api
+```
+
+### API Endpoint:
+
+```
 POST /predict
-Sample Input:
+```
+
+### Sample Input:
+
+```json
 {
   "Region": 5,
   "employed": 1500000,
@@ -120,66 +168,151 @@ Sample Input:
   "Year": 2020,
   "Month": 7
 }
-Output:
+```
+
+### Output:
+
+```json
 {
   "prediction": 5.65
 }
- CI/CD Pipeline (GitHub Actions)
-Trigger: Push to main branch
-Steps:
-Install dependencies
-Run preprocessing
-Train model
-Evaluate model
- Monitoring (Evidently AI)
-Generates Data Drift Report
-Output:
-reports/data_drift_report.html
-Insight:
-No drift detected (same dataset used for demo)
-In real systems, drift would indicate model degradation
- Evaluation Metrics
-MSE ≈ 0
-RMSE ≈ 0
+```
 
- Note:
-Evaluation uses same dataset → near-perfect score
-In production, separate test data should be used.
+---
 
- How to Run Project
-1. Setup Environment
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-2. Run Airflow
-airflow standalone
+##  Streamlit UI
+
+Run:
+
+```bash
+streamlit run app/app.py
+```
 
 Open:
 
-http://localhost:8080
-3. Trigger DAG
-Select job_market_pipeline
-Click Trigger
-4. Run FastAPI
-uvicorn app.main:app --reload
-5. Run Evaluation (Monitoring)
-python src/models/evaluate.py
- Key Features
+```
+http://localhost:8501
+```
 
-✔ End-to-End Pipeline
+👉 Provides a user-friendly interface for predictions.
+
+---
+
+## ⚙️ CI/CD Pipeline (GitHub Actions)
+
+### Trigger:
+
+* Push to `main` branch
+
+### Steps:
+
+* Install dependencies
+* Run preprocessing
+* Train model
+* Evaluate model
+
+-> Ensures pipeline reproducibility and early error detection.
+
+---
+
+##  Monitoring (Evidently AI)
+
+Generates data drift report:
+
+```
+reports/data_drift_report.html
+```
+
+### Insight:
+
+* No drift detected (demo dataset)
+
+---
+
+##  Evaluation Metrics
+
+* **MSE ≈ 0**
+* **RMSE ≈ 0**
+
+> Note: Same dataset used for demo → near-perfect score.
+> In real-world scenarios, separate test data should be used.
+
+---
+
+##  How to Run the Project
+
+### 1️ Setup Environment
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+---
+
+### 2️ Run Airflow
+
+```bash
+airflow standalone
+```
+
+Open:
+
+```
+http://localhost:8080
+```
+
+---
+
+### 3️ Run MLflow
+
+```bash
+mlflow ui
+```
+
+Open:
+
+```
+http://127.0.0.1:5000
+```
+
+---
+
+### 4️ Run API (Docker)
+
+```bash
+docker run -p 8000:8000 job-market-api
+```
+
+---
+
+### 5️ Run Streamlit UI
+
+```bash
+streamlit run app/app.py
+```
+
+---
+
+##  Key Features
+
+✔ End-to-End MLOps Pipeline
 ✔ Automated Workflow (Airflow)
 ✔ Experiment Tracking (MLflow)
-✔ Model Deployment (FastAPI)
+✔ Model Deployment (FastAPI + Docker)
+✔ User Interface (Streamlit)
 ✔ CI/CD Integration
 ✔ Data Drift Monitoring
 
- Conclusion
+---
 
-This project demonstrates a complete production-ready MLOps workflow, integrating automation, monitoring, and deployment for scalable machine learning systems.
+## 🏁 Conclusion
 
-testing ci/cd
+This project demonstrates a **production-style MLOps workflow**, integrating automation, deployment, monitoring, and reproducibility for scalable machine learning systems.
 
-👤 Author
+---
 
-Sudhanshu Kandekartrigger CI/CD
-trigger
+## 👤 Author
+
+**Sudhanshu Kandekar**
