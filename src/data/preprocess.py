@@ -36,7 +36,71 @@ MAPPING_PATH = os.path.join(
 
 def load_data():
 
-    # Load actual datasets
+    # ==============================
+    # CI/CD Fallback Dummy Dataset
+    # ==============================
+
+    if not os.path.exists(RAW_PATH_1) or not os.path.exists(RAW_PATH_2):
+
+        print("⚠️ Dataset not found. Using dummy dataset for CI/CD...")
+
+        data = {
+            "Region": ["A", "A", "A", "B", "B", "B"],
+
+            "Date": [
+                "2020-01-01",
+                "2020-02-01",
+                "2020-03-01",
+                "2020-01-01",
+                "2020-02-01",
+                "2020-03-01"
+            ],
+
+            "Estimated Unemployment Rate (%)": [
+                5.0,
+                6.0,
+                7.0,
+                4.5,
+                5.5,
+                6.5
+            ],
+
+            "Estimated Employed": [
+                1000000,
+                1100000,
+                1200000,
+                900000,
+                950000,
+                1000000
+            ],
+
+            "Estimated Labour Participation Rate (%)": [
+                40.0,
+                42.0,
+                41.0,
+                39.0,
+                40.0,
+                41.0
+            ],
+
+            "Area": [
+                "Urban",
+                "Urban",
+                "Urban",
+                "Rural",
+                "Rural",
+                "Rural"
+            ]
+        }
+
+        df = pd.DataFrame(data)
+
+        return df, df
+
+    # ==============================
+    # Load Real Dataset
+    # ==============================
+
     df1 = pd.read_csv(RAW_PATH_1)
     df2 = pd.read_csv(RAW_PATH_2)
 
@@ -79,7 +143,7 @@ def combine_data(df1, df2):
 
 def clean_data(df):
 
-    # Convert Date
+    # Convert Date column
     df['Date'] = pd.to_datetime(
         df['Date'],
         errors='coerce',
@@ -93,7 +157,7 @@ def clean_data(df):
         'Estimated Labour Participation Rate (%)'
     ]
 
-    # Convert to numeric
+    # Convert numeric columns
     for col in numeric_cols:
 
         df[col] = pd.to_numeric(
@@ -101,7 +165,7 @@ def clean_data(df):
             errors='coerce'
         )
 
-    # Drop important missing values
+    # Remove important missing values
     df = df.dropna(
         subset=[
             'Date',
@@ -156,7 +220,7 @@ def feature_engineering(df):
     df['Year'] = df['Date'].dt.year
     df['Month'] = df['Date'].dt.month
 
-    # Drop only feature NaNs
+    # Remove NaNs created by lag features
     df = df.dropna(
         subset=[
             'lag_1',
@@ -195,7 +259,7 @@ def clean_columns(df):
 
 def encode_features(df):
 
-    # Create category object
+    # Convert Region to categorical
     region_category = (
         df['Region']
         .astype('category')
@@ -245,7 +309,7 @@ def encode_features(df):
 
 
 # ==============================
-# Save Data
+# Save Processed Data
 # ==============================
 
 def save_data(df):
@@ -271,7 +335,7 @@ def run_preprocessing():
 
     print("\n Preprocessing started...")
 
-    # Load
+    # Load data
     df1, df2 = load_data()
 
     # Combine
@@ -280,16 +344,16 @@ def run_preprocessing():
     # Clean
     df = clean_data(df)
 
-    # Feature Engineering
+    # Feature engineering
     df = feature_engineering(df)
 
-    # Rename Columns
+    # Rename columns
     df = clean_columns(df)
 
-    # Encode Features
+    # Encode features
     df = encode_features(df)
 
-    # Save Final Data
+    # Save processed dataset
     save_data(df)
 
     print("\n Preprocessing done!")
